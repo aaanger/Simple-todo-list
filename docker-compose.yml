@@ -5,8 +5,8 @@ services:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: anger
-      POSTGRES_PASSWORD: 123
-      POSTGRES_DB: p1
+      POSTGRES_USER: ${PSQL_USER}
+      POSTGRES_PASSWORD: ${PSQL_PASSWORD}
+      POSTGRES_DB: ${PSQL_DBNAME}
     ports:
       - 5433:5432
