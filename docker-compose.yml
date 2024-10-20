@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  p1-db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: anger
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: p1
+    ports:
+      - 5433:5432
