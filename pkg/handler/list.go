@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/aaanger/p1/pkg/models"
+	"github.com/aaanger/todo/pkg/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	"github.com/aaanger/p1/pkg/models"
+	"github.com/aaanger/todo/pkg/models"
 	"github.com/sirupsen/logrus"
 	"strings"
 )

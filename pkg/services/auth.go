@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 	"fmt"
-	"github.com/aaanger/p1/pkg/models"
-	"github.com/aaanger/p1/pkg/repository"
+	"github.com/aaanger/todo/pkg/models"
+	"github.com/aaanger/todo/pkg/repository"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -57,7 +57,7 @@ func (us *UserService) AuthUser(username, password string) (string, error) {
 func (us *UserService) ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("Invalid signing method")
+			return nil, errors.New("invalid signing method")
 		}
 		return []byte(signingTokenKey), nil
 	})
@@ -66,7 +66,7 @@ func (us *UserService) ParseToken(accessToken string) (int, error) {
 	}
 	claims, ok := token.Claims.(*tokenClaims)
 	if !ok {
-		return 0, fmt.Errorf("Token claims are not of type *tokenClaims: %w", err)
+		return 0, fmt.Errorf("parse token: %w", err)
 	}
 	return claims.UserID, nil
 }

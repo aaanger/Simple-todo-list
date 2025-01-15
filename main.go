@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"github.com/aaanger/p1/pkg/handler"
-	"github.com/aaanger/p1/pkg/repository"
-	"github.com/aaanger/p1/pkg/services"
+	"github.com/aaanger/todo/pkg/handler"
+	"github.com/aaanger/todo/pkg/repository"
+	"github.com/aaanger/todo/pkg/services"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"net/http"

@@ -3,7 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"github.com/aaanger/p1/pkg/models"
+	"github.com/aaanger/todo/pkg/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

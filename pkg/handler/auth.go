@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/aaanger/p1/pkg/models"
+	"github.com/aaanger/todo/pkg/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -10,7 +10,7 @@ func (h *Handler) signUp(c *gin.Context) {
 	var user models.User
 	err := c.BindJSON(&user)
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		newErrorResponse(c, http.StatusBadRequest, "Invalid input body")
 		return
 	}
 	userID, err := h.service.CreateUser(user)

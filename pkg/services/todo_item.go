@@ -2,8 +2,8 @@ package services
 
 import (
 	"fmt"
-	"github.com/aaanger/p1/pkg/models"
-	"github.com/aaanger/p1/pkg/repository"
+	"github.com/aaanger/todo/pkg/models"
+	"github.com/aaanger/todo/pkg/repository"
 )
 
 type TodoItemService struct {
