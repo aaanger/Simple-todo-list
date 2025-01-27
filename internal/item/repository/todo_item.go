@@ -1,13 +1,24 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/aaanger/todo/pkg/models"
+	"github.com/aaanger/todo/internal/item/model"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
 
-func (r *Repository) CreateItem(listID int, item models.Item) (int, error) {
+type TodoItemRepository struct {
+	DB *sql.DB
+}
+
+func NewTodoItemRepository(db *sql.DB) *TodoItemRepository {
+	return &TodoItemRepository{
+		DB: db,
+	}
+}
+
+func (r *TodoItemRepository) CreateItem(listID int, item model.Item) (int, error) {
 	tx, err := r.DB.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("repository create item: %w", err)
@@ -29,8 +40,8 @@ func (r *Repository) CreateItem(listID int, item models.Item) (int, error) {
 	return item.ID, tx.Commit()
 }
 
-func (r *Repository) GetAllItems(userID, listID int) ([]models.Item, error) {
-	var items []models.Item
+func (r *TodoItemRepository) GetAllItems(userID, listID int) ([]model.Item, error) {
+	var items []model.Item
 
 	rows, err := r.DB.Query(`SELECT title, description, done FROM items i INNER JOIN list_items li ON i.id = li.item_id 
     INNER JOIN user_lists ul ON ul.list_id = li.list_id WHERE li.list_id=$1 AND ul.user_id=$2`, listID, userID)
@@ -39,7 +50,7 @@ func (r *Repository) GetAllItems(userID, listID int) ([]models.Item, error) {
 	}
 
 	for rows.Next() {
-		var item models.Item
+		var item model.Item
 
 		err = rows.Scan(&item.Title, &item.Description, &item.Done)
 		if err != nil {
@@ -52,8 +63,8 @@ func (r *Repository) GetAllItems(userID, listID int) ([]models.Item, error) {
 	return items, rows.Err()
 }
 
-func (r *Repository) GetItemByID(userID, itemID int) (models.Item, error) {
-	var item models.Item
+func (r *TodoItemRepository) GetItemByID(userID, itemID int) (model.Item, error) {
+	var item model.Item
 
 	row := r.DB.QueryRow(`SELECT title, description, done FROM items i INNER JOIN list_items li ON i.id = li.item_id 
     INNER JOIN user_lists ul ON li.list_id = ul.list_id WHERE ul.user_id = $1 AND i.id = $2`, userID, itemID)
@@ -65,7 +76,7 @@ func (r *Repository) GetItemByID(userID, itemID int) (models.Item, error) {
 	return item, nil
 }
 
-func (r *Repository) UpdateItem(userID, itemID int, input models.UpdateItem) error {
+func (r *TodoItemRepository) UpdateItem(userID, itemID int, input model.UpdateItem) error {
 	keys := make([]string, 0)
 	values := make([]interface{}, 0)
 
@@ -102,7 +113,7 @@ func (r *Repository) UpdateItem(userID, itemID int, input models.UpdateItem) err
 	return err
 }
 
-func (r *Repository) DeleteItem(userID, itemID int) error {
+func (r *TodoItemRepository) DeleteItem(userID, itemID int) error {
 	_, err := r.DB.Exec(`DELETE FROM items i USING list_items li, user_lists ul WHERE li.item_id = i.id AND li.list_id = ul.list_id AND i.id=$1 AND ul.user_id=$2`, itemID, userID)
 	return err
 }

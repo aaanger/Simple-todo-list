@@ -1,10 +1,10 @@
-package services
+package service
 
 import (
 	"errors"
 	"fmt"
-	"github.com/aaanger/todo/pkg/models"
-	"github.com/aaanger/todo/pkg/repository"
+	"github.com/aaanger/todo/internal/users/model"
+	"github.com/aaanger/todo/internal/users/repository"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -15,8 +15,13 @@ const (
 	tokenExpire     = 12 * time.Hour
 )
 
+type IUserService interface {
+	CreateUser(user model.User) (int, error)
+	AuthUser(username, password string) (string, error)
+}
+
 type UserService struct {
-	repo *repository.Repository
+	repo *repository.UserRepository
 }
 
 type tokenClaims struct {
@@ -24,13 +29,13 @@ type tokenClaims struct {
 	UserID int `json:"id"`
 }
 
-func NewUserService(repo *repository.Repository) *UserService {
+func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{
 		repo: repo,
 	}
 }
 
-func (us *UserService) CreateUser(user models.User) (int, error) {
+func (us *UserService) CreateUser(user model.User) (int, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return 0, fmt.Errorf("service create user: %w", err)
@@ -54,7 +59,7 @@ func (us *UserService) AuthUser(username, password string) (string, error) {
 	return token.SignedString([]byte(signingTokenKey))
 }
 
-func (us *UserService) ParseToken(accessToken string) (int, error) {
+func ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("invalid signing method")

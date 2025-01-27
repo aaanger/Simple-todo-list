@@ -1,13 +1,24 @@
 package repository
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/aaanger/todo/pkg/models"
+	"github.com/aaanger/todo/internal/list/model"
 	"github.com/sirupsen/logrus"
 	"strings"
 )
 
-func (r *Repository) CreateList(userID int, list models.TodoList) (int, error) {
+type TodoListRepository struct {
+	DB *sql.DB
+}
+
+func NewTodoListRepository(db *sql.DB) *TodoListRepository {
+	return &TodoListRepository{
+		DB: db,
+	}
+}
+
+func (r *TodoListRepository) CreateList(userID int, list model.TodoList) (int, error) {
 	tx, err := r.DB.Begin()
 	if err != nil {
 		return 0, fmt.Errorf("repository create list: %w", err)
@@ -29,8 +40,8 @@ func (r *Repository) CreateList(userID int, list models.TodoList) (int, error) {
 	return list.ID, tx.Commit()
 }
 
-func (r *Repository) GetAllLists(userID int) ([]models.TodoList, error) {
-	var lists []models.TodoList
+func (r *TodoListRepository) GetAllLists(userID int) ([]model.TodoList, error) {
+	var lists []model.TodoList
 
 	rows, err := r.DB.Query(`SELECT title, description FROM lists l INNER JOIN user_lists ul ON l.id = ul.list_id WHERE ul.user_id=$1;`, userID)
 	if err != nil {
@@ -38,7 +49,7 @@ func (r *Repository) GetAllLists(userID int) ([]models.TodoList, error) {
 	}
 
 	for rows.Next() {
-		var list models.TodoList
+		var list model.TodoList
 
 		err = rows.Scan(&list.Title, &list.Description)
 		if err != nil {
@@ -50,21 +61,21 @@ func (r *Repository) GetAllLists(userID int) ([]models.TodoList, error) {
 	return lists, rows.Err()
 }
 
-func (r *Repository) GetListByID(userID, listID int) (models.TodoList, error) {
-	list := models.TodoList{
+func (r *TodoListRepository) GetListByID(userID, listID int) (model.TodoList, error) {
+	list := model.TodoList{
 		ID: listID,
 	}
 	row := r.DB.QueryRow(`SELECT title, description FROM lists l INNER JOIN user_lists ul ON l.id = ul.list_id WHERE ul.list_id=$1 AND ul.user_id=$2;`, listID, userID)
 
 	err := row.Scan(&list.Title, &list.Description)
 	if err != nil {
-		return models.TodoList{}, fmt.Errorf("repository get list by id: %w", err)
+		return model.TodoList{}, fmt.Errorf("repository get list by id: %w", err)
 	}
 
 	return list, nil
 }
 
-func (r *Repository) UpdateList(userID, listID int, input models.UpdateTodoList) error {
+func (r *TodoListRepository) UpdateList(userID, listID int, input model.UpdateTodoList) error {
 	keys := make([]string, 0)
 	values := make([]interface{}, 0)
 
@@ -95,7 +106,7 @@ func (r *Repository) UpdateList(userID, listID int, input models.UpdateTodoList)
 	return err
 }
 
-func (r *Repository) DeleteList(userID, listID int) error {
+func (r *TodoListRepository) DeleteList(userID, listID int) error {
 	_, err := r.DB.Exec(`DELETE FROM lists l USING user_lists ul WHERE l.id = ul.list_id AND l.id=$1 AND ul.user_id=$2`, listID, userID)
 	return err
 }

@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/aaanger/todo/pkg/handler"
 	"github.com/aaanger/todo/pkg/repository"
-	"github.com/aaanger/todo/pkg/services"
+	"github.com/aaanger/todo/pkg/routes"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -47,13 +46,9 @@ func main() {
 		logrus.Fatalf("Error creating database: %s", err.Error())
 	}
 
-	repository := repository.NewRepository(db)
-	service := services.NewService(repository)
-	handler := handler.NewHandler(service)
-
 	srv := new(Server)
 	go func() {
-		err = srv.run(":3000", handler.PathHandler())
+		err = srv.run(":3000", routes.PathHandler(db))
 		if err != nil {
 			logrus.Fatalf("Error run server: %s", err.Error())
 		}

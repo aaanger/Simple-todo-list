@@ -3,21 +3,21 @@ package repository
 import (
 	"database/sql"
 	"fmt"
-	"github.com/aaanger/todo/pkg/models"
+	"github.com/aaanger/todo/internal/users/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Repository struct {
+type UserRepository struct {
 	DB *sql.DB
 }
 
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{
+func NewUserRepository(db *sql.DB) *UserRepository {
+	return &UserRepository{
 		DB: db,
 	}
 }
 
-func (r *Repository) CreateUser(user models.User) (int, error) {
+func (r *UserRepository) CreateUser(user model.User) (int, error) {
 	row := r.DB.QueryRow(`INSERT INTO users (username, password_hash) VALUES($1, $2) RETURNING id;`, user.Username, user.Password)
 	err := row.Scan(&user.ID)
 	if err != nil {
@@ -26,8 +26,8 @@ func (r *Repository) CreateUser(user models.User) (int, error) {
 	return user.ID, nil
 }
 
-func (r *Repository) AuthUser(username, password string) (*models.User, error) {
-	user := models.User{
+func (r *UserRepository) AuthUser(username, password string) (*model.User, error) {
+	user := model.User{
 		Username: username,
 	}
 	row := r.DB.QueryRow(`SELECT id, password_hash FROM users WHERE username=$1`, username)
